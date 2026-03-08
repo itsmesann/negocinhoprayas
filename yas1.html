@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para a Macaquinha 🎀🖤</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Courier+Prime&display=swap" rel="stylesheet">
+
+<style>
+    /* cursor */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html {
+        width: 100%; height: 100%;
+        background: radial-gradient(circle at center, #1a1014 0%, #050505 100%); 
+        color: #fce4ec; font-family: 'Playfair Display', serif;
+        overflow: hidden; position: relative;
+        cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="font-size:24px"><text y="20">🎀</text></svg>') 12 12, auto;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(216, 133, 158, 0.4); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(216, 133, 158, 0.8); }
+
+    /* estrela fundo */
+    #star-field { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+    .star { position: absolute; color: #fce4ec11; text-shadow: 0 0 6px rgba(216, 133, 158, 0.3); animation: fall linear infinite, twinkle ease-in-out infinite; opacity: 0; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+    @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
+
+    .sparkle {
+        position: absolute; pointer-events: none; z-index: 9999;
+        color: #ffb7c5; font-size: 14px; text-shadow: 0 0 5px #ffb7c5;
+        animation: fadeAndFall 1s ease-out forwards;
+    }
+    @keyframes fadeAndFall {
+        0% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+        100% { opacity: 0; transform: scale(0.5) translateY(20px) rotate(45deg); }
+    }
+
+    /* HUB */
+    #hub { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 100%; position: relative; z-index: 10; backdrop-filter: blur(2px); transition: opacity 0.5s; }
+    .hub-title { font-size: 2.2rem; color: #d8859e; margin-bottom: 40px; font-style: italic; text-shadow: 0 0 15px rgba(216, 133, 158, 0.4); text-align: center; animation: neon-pulse 3s infinite; letter-spacing: 1px; }
+    @keyframes neon-pulse { 0%, 100% { text-shadow: 0 0 10px rgba(216, 133, 158, 0.4); } 50% { text-shadow: 0 0 25px rgba(255, 183, 197, 0.8), 0 0 5px #fce4ec; } }
+
+    .cards-container { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; max-width: 600px; }
+
+    .card { width: 160px; height: 220px; background: linear-gradient(135deg, rgba(40, 30, 35, 0.6) 0%, rgba(20, 15, 18, 0.8) 100%); border: 1px solid rgba(216, 133, 158, 0.3); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 15px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(216, 133, 158, 0.1); position: relative; overflow: hidden; transition: all 0.3s ease-out; backdrop-filter: blur(8px); transform-style: preserve-3d; cursor: pointer; }
+    .card:hover { border-color: rgba(255, 183, 197, 0.8); box-shadow: 0 15px 35px rgba(216, 133, 158, 0.4), inset 0 0 15px rgba(216, 133, 158, 0.2); }
+    .card span { font-size: 2.2rem; margin-bottom: 15px; pointer-events: none; filter: drop-shadow(0 0 5px rgba(255,183,197,0.3));}
+    .card h3 { font-size: 1.1rem; color: #ffb7c5; font-weight: normal; pointer-events: none;}
+
+    /* CARD */
+    #card-secret { display: none; border-color: #ffb7c5; animation: revealSecret 1.5s ease; box-shadow: 0 0 20px rgba(216, 133, 158, 0.5); }
+    @keyframes revealSecret { 0% { opacity: 0; transform: scale(0.5) translateY(50px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+    .overlay-transition { position: fixed; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%) scale(0); transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1); z-index: 20; pointer-events: none; }
+    .overlay-transition.active { transform: translate(-50%, -50%) scale(300); }
+
+    .content-section { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; display: none; opacity: 0; transition: opacity 0.5s ease; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(12px); }
+    .content-section.visible { display: flex; opacity: 1; }
+
+    .back-btn { position: absolute; top: 25px; left: 25px; background: rgba(0,0,0,0.3); border: 1px solid #d8859e; color: #d8859e; padding: 10px 20px; border-radius: 20px; font-family: 'Playfair Display', serif; font-size: 1rem; transition: 0.3s; z-index: 50; backdrop-filter: blur(5px); cursor: pointer; }
+    .back-btn:hover { background: #d8859e; color: #121212; transform: scale(1.05); box-shadow: 0 0 15px rgba(216,133,158,0.4);}
+
+    /* TEMA 1: */
+    #sec-guerra { background-color: rgba(20, 15, 18, 0.95); }
+    .typewriter-box { width: 85%; max-width: 700px; max-height: 70vh; overflow-y: auto; background: rgba(0,0,0,0.6); padding: 40px; border: 1px solid rgba(216, 133, 158, 0.2); border-radius: 8px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative; }
+    #typing-indicator { color: #d8859e; font-style: italic; font-size: 1.1rem; margin-bottom: 20px; }
+    .dot { animation: blink-dot 1.4s infinite both; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+    .typewriter-text { font-family: 'Courier Prime', monospace; color: #d4c4b7; font-size: 1.15rem; line-height: 1.9; }
+    .cursor { animation: blink 1s infinite; color: #d8859e; font-weight: bold;}
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .signature { font-family: 'Dancing Script', cursive; font-size: 2rem; color: #ffb7c5; text-align: right; margin-top: 30px; opacity: 0; transition: opacity 2s ease; text-shadow: 0 0 5px rgba(255, 183, 197, 0.4); }
+    .signature.show { opacity: 1; }
+
+    /* TEMA 2:S */
+    #sec-sombras { background-color: rgba(8, 9, 12, 0.95); cursor: crosshair; }
+    .shadow-hint { color: #666; font-style: italic; position: absolute; bottom: 30px; pointer-events: none; letter-spacing: 1px;}
+    .floating-phrase { position: absolute; color: #ffb7c5; font-style: italic; font-size: 1.3rem; text-align: center; pointer-events: none; animation: floatUp 4.5s ease-out forwards; text-shadow: 0 0 10px rgba(255, 183, 197, 0.6); }
+    @keyframes floatUp { 0% { opacity: 0; transform: translateY(20px) scale(0.9); } 20% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(1.1); } }
+
+    /* TEMA 3: */
+    #sec-labirinto { background-color: rgba(22, 16, 21, 0.95); }
+    .maze-title { color: #d8859e; margin-bottom: 5px; font-style: italic; font-size: 1.5rem;}
+    #maze-subtitle { color: #ffb7c5; min-height: 25px; margin-bottom: 15px; font-style: italic; font-size: 1rem; text-align: center; text-shadow: 0 0 8px rgba(255, 183, 197, 0.6); transition: all 0.3s ease; }
+    #maze-board { display: grid; grid-template-columns: repeat(10, min(25px, 7vw)); grid-template-rows: repeat(10, min(25px, 7vw)); gap: 2px; background-color: #0b080a; padding: 12px; border: 2px solid rgba(216,133,158,0.5); border-radius: 10px; box-shadow: 0 0 25px rgba(216,133,158,0.15); }
+    .cell { border-radius: 3px; display: flex; justify-content: center; align-items: center; font-size: min(16px, 4vw);}
+    .wall { background-color: #382832; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);} .path { background-color: #1a1718; } 
+    .goal-letter { animation: heart-pulse 1.5s infinite; }
+    @keyframes heart-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); text-shadow: 0 0 10px rgba(255,183,197,0.8); } }
+    .controls { display: grid; grid-template-columns: 50px 50px 50px; gap: 8px; margin-top: 25px; }
+    .ctrl-btn { background: linear-gradient(135deg, #2c1f26 0%, #1a1216 100%); border: 1px solid rgba(216, 133, 158, 0.4); color: #ffb7c5; border-radius: 8px; height: 45px; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; transition: 0.2s; user-select: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .ctrl-btn:active { background: #d8859e; color: #121212; transform: translateY(2px); box-shadow: none;}
+    .ctrl-up { grid-column: 2; } .ctrl-left { grid-column: 1; grid-row: 2; } .ctrl-down { grid-column: 2; grid-row: 2; } .ctrl-right { grid-column: 3; grid-row: 2; }
+    #secret-letter { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: linear-gradient(135deg, #f4ecd8 0%, #e6d7bc 100%); color: #3e2723; padding: 40px; border-radius: 12px; width: 85%; max-width: 450px; text-align: center; font-family: 'Courier Prime', monospace; box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.05); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 40; }
+    #secret-letter.show { transform: translate(-50%, -50%) scale(1); }
+    .btn-fechar { margin-top: 20px; padding: 8px 20px; border-radius: 20px; border: 1px solid #3e2723; background: transparent; color: #3e2723; cursor:pointer; font-family: 'Playfair Display', serif; font-weight: bold; transition: 0.3s; }
+    .btn-fechar:hover { background: #3e2723; color: #f4ecd8; }
+
+    /* TEMA 4: */
+    #sec-musica { background-color: rgba(12, 14, 18, 0.95); }
+    .music-container { width: 90%; max-width: 420px; text-align: center; }
+    .music-container p { color: #8e929b; margin-bottom: 25px; font-style: italic; font-size: 1.1rem;}
+
+    /* TEMA 5 (SECRETO): */
+    #sec-polaroids { background-color: rgba(15, 10, 12, 0.98); overflow: hidden; }
+    .mesa-title { position: absolute; top: 40px; width: 100%; text-align: center; color: #d8859e; font-style: italic; font-size: 2.2rem; z-index: 5; text-shadow: 0 0 15px rgba(216, 133, 158, 0.4); font-family: 'Playfair Display', serif; pointer-events: none;}
+    .polaroid-table { width: 100%; height: 100%; position: relative; }
+    
+    .carta-mesa { position: absolute; width: auto; min-width: 140px; max-width: 250px; background: linear-gradient(135deg, #f4ecd8 0%, #e6d7bc 100%); padding: 15px 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); cursor: grab; user-select: none; border: 1px solid #d4c4b7; border-radius: 4px; color: #3e2723; font-family: 'Courier Prime', monospace; font-size: 1.1rem; text-align: center; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; }
+    .carta-mesa:active { cursor: grabbing; box-shadow: 0 15px 30px rgba(0,0,0,0.8); }
+    .hint-polaroid { position: absolute; bottom: 30px; width: 100%; text-align: center; color: #666; font-style: italic; pointer-events: none; z-index: 5;}
+
+    .timer-container {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        text-align: center; color: rgba(255, 183, 197, 0.15); pointer-events: none;
+        font-family: 'Courier Prime', monospace; width: 100%; z-index: 0;
+    }
+    .timer-container h3 { font-style: italic; font-weight: normal; margin-bottom: 10px; font-family: 'Playfair Display', serif; }
+    .timer-numbers { font-size: 3rem; font-weight: bold; letter-spacing: 2px; }
+
+</style>
+</head>
+<body>
+
+<div id="star-field"></div>
+<div id="transition-overlay" class="overlay-transition"></div>
+
+<div id="hub">
+    <h1 class="hub-title">Para minha macaquinha ok?</h1>
+    <div class="cards-container">
+        <div class="card js-tilt" onclick="openSection('guerra', '#1a1718')">
+            <span>𓂃✍︎</span><h3>Textinho</h3>
+        </div>
+        <div class="card js-tilt" onclick="openSection('sombras', '#0b0c10')">
+            <span>꒰ ✉︎ ꒱</span><h3>Cartinhas pequenas</h3>
+        </div>
+        <div class="card js-tilt" onclick="openSection('labirinto', '#1c151b')">
+            <span>🔍︎</span><h3>Labirinto ultra secreto</h3>
+        </div>
+        <div class="card js-tilt" onclick="openSection('musica', '#0f1115')">
+            <span>𝄞</span><h3>Playlist</h3>
+        </div>
+        
+        <div class="card js-tilt" id="card-secret" onclick="openSection('polaroids', '#0f0a0c')">
+            <span>♡</span><h3>coisinho</h3>
+        </div>
+    </div>
+</div>
+
+<div id="sec-guerra" class="content-section">
+    <button class="back-btn" onclick="closeSection('guerra')">✖ Voltar</button>
+    <div class="typewriter-box">
+        <div id="typing-indicator">Oli está digitando<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+        <div class="typewriter-text"><span id="typewriter"></span><span class="cursor" id="cursor-tw">|</span></div>
+        <div class="signature" id="signature">Oli.</div>
+    </div>
+</div>
+
+<div id="sec-sombras" class="content-section" onclick="spawnPhrase(event)">
+    <button class="back-btn" onclick="closeSection('sombras')">✖ Voltar</button>
+    <div class="shadow-hint">Clique em qualquer lugar...</div>
+</div>
+
+<div id="sec-labirinto" class="content-section">
+    <button class="back-btn" onclick="closeSection('labirinto')">✖ Voltar</button>
+    <h3 class="maze-title">Guie a Aubrey até a carta...</h3>
+    <div id="maze-subtitle"></div>
+    <div id="maze-board"></div>
+    
+    <div class="controls">
+        <div class="ctrl-btn ctrl-up" onclick="movePlayer(0, -1)">▲</div>
+        <div class="ctrl-btn ctrl-left" onclick="movePlayer(-1, 0)">◀</div>
+        <div class="ctrl-btn ctrl-down" onclick="movePlayer(0, 1)">▼</div>
+        <div class="ctrl-btn ctrl-right" onclick="movePlayer(1, 0)">▶</div>
+    </div>
+
+    <div id="secret-letter">
+        <h2>💌 Você me encontrou!</h2>
+        <br>
+        <p>"Não importa o quão escuro ou confuso o caminho pareça, eu sempre vou deixar uma pista pra você me achar. Te amo, macaquinha."</p>
+        <button class="btn-fechar" onclick="closeSecretLetter()">Guardar no coração</button>
+    </div>
+</div>
+
+<div id="sec-musica" class="content-section">
+    <button class="back-btn" onclick="closeSection('musica')">✖ Voltar</button>
+    <div class="music-container">
+        <p>"Aperta o play!!!"</p>
+        <div style="border: 1px solid rgba(216,133,158,0.3); padding: 50px; border-radius: 12px; color: #8e929b; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px);">
+            Espaço reservado para o player do Spotify 🎧<br><br>
+            <span style="font-size: 0.8rem;">(Se a playlist nao apareceu, deu algum erro, manda print pro oli!!!!!)</span>
+        </div>
+    </div>
+</div>
+
+<div id="sec-polaroids" class="content-section">
+    <button class="back-btn" onclick="closeSection('polaroids')" style="z-index: 100;">✖ Voltar</button>
+    <h2 class="mesa-title">Coisas que importam pra mim...</h2>
+    
+    <div class="timer-container">
+        <h3>Tempo que eu estou disposto a esperar por você:</h3>
+        <div class="timer-numbers" id="wait-timer">00d 00h 00m 00s</div>
+    </div>
+
+    <div class="polaroid-table" id="mesa-cartas"></div>
+    <div class="hint-polaroid">Arraste os bilhetes pela mesa...</div>
+</div>
+
+<script>
+    const transitionOverlay = document.getElementById('transition-overlay');
+    const hub = document.getElementById('hub');
+
+    // aba
+    let tituloOriginal = document.title;
+    window.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            document.title = "Volta aqui, macaquinha... ";
+        } else {
+            document.title = tituloOriginal;
+        }
+    });
+    // (TIMER)
+    // Cdata q eu me declarei
+    const dataInicio = new Date(2025, 12, 29); // Exemplo: 18 de Novembro de 2025
+    
+    function atualizarCronometro() {
+        const agora = new Date();
+        const diff = agora - dataInicio;
+        
+        const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutos = Math.floor((diff / 1000 / 60) % 60);
+        const segundos = Math.floor((diff / 1000) % 60);
+        
+        document.getElementById('wait-timer').innerText = 
+            `${dias}d ${horas.toString().padStart(2, '0')}h ${minutos.toString().padStart(2, '0')}m ${segundos.toString().padStart(2, '0')}s`;
+    }
+    setInterval(atualizarCronometro, 1000);
+    atualizarCronometro();
+
+    // sequecnia
+    const warMessages = [
+        "Yasmin... Se nós vivêssemos no universo de Divinos Rivais, eu não hesitaria um segundo em cruzar um campo de batalha inteiro só para te entregar uma carta. Eu escreveria para você no escuro, no meio da guerra e do caos, apenas para te lembrar que você é o meu refúgio.",
+        "Lembra daquele texto que você me mandou um tempo atrás? Aquele em que pediu desculpas por ter medo de mudar a nossa amizade? Eu guardo cada palavra dele. E te respondo agora: você nunca precisou se desculpar. Aquele foi o início da minha melhor história.",
+        "Eu sei que o nosso momento exige paciência. Mas, assim como nas entrelinhas dos livros que você lê, o que é verdadeiro resiste ao tempo. Eu te espero o tempo que for, sem pressa nenhuma. Minha mente está em paz, porque já escolheu você.",
+        "Não preciso procurar mais nada. Nossas madrugadas assistindo coisas, a voz, nossas skins combinando... Para mim, cada um desses momentos é como a nossa própria magia, a nossa própria frequência.",
+        "Eu mergulharia até o fundo do oceano e enfrentaria qualquer guerra por você. Quero continuar sendo o seu porto seguro. Eu te amo, macaquinha. E sempre vou estar aqui para ler e escrever a nossa história.",
+        "Não importa se a gente está falando de coisas sérias ou só rindo de bobeira em silêncio na call, estar com você é sentir que eu finalmente encontrei o meu lugar"
+    ];
+    let typeInterval;
+    let typingTimeout;
+
+    const shadowPhrases = [
+        "Eu rastejaria por uma trincheira inteira só para ler mais uma palavra sua.",
+        "Se a nossa história fosse uma música, seria a minha melodia favorita.",
+        "Minhas palavras sempre vão procurar as suas, não importa a distância.",
+        "Você é a frequência exata que acalma o meu caos.",
+        "Eu amo nossas metadinhas e nossas skins combinando.",
+        "Eu te espero o tempo que for necessário, como um capítulo que anseia por ser lido.",
+        "Assistir qualquer coisa com você faz o meu dia valer a pena.",
+        "Sempre estarei aqui, macaquinha."
+    ];
+    let currentPhraseIndex = 0;
+
+    // estrtela
+    function createStarField() {
+        const starField = document.getElementById('star-field');
+        const symbols = ['⟡', '★', '✶', '✸', '✿'];
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+            star.style.left = Math.random() * 100 + 'vw';
+            
+            const depthGroup = Math.random();
+            let size, duration, twinkleDuration, blur;
+
+            if (depthGroup < 0.6) { 
+                size = Math.random() * 5 + 6 + 'px'; duration = Math.random() * 20 + 20 + 's'; 
+                twinkleDuration = Math.random() * 3 + 2 + 's'; blur = 'blur(1px)';
+            } else if (depthGroup < 0.9) { 
+                size = Math.random() * 8 + 12 + 'px'; duration = Math.random() * 10 + 10 + 's'; 
+                twinkleDuration = Math.random() * 2 + 1 + 's'; blur = 'none';
+            } else { 
+                size = Math.random() * 10 + 20 + 'px'; duration = Math.random() * 5 + 5 + 's'; 
+                twinkleDuration = Math.random() * 1 + 0.5 + 's'; blur = 'none';
+                star.style.color = '#fce4ec33'; 
+            }
+            star.style.fontSize = size;
+            star.style.animationDuration = duration + ', ' + twinkleDuration;
+            star.style.filter = blur; star.style.animationDelay = Math.random() * 20 + 's';
+            starField.appendChild(star);
+        }
+    }
+
+    // 3d
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            if (hub.style.display === 'none') return; 
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left, y = e.clientY - rect.top;  
+            const centerX = rect.width / 2, centerY = rect.height / 2;
+            const tiltX = (y - centerY) / centerY * 15, tiltY = (centerX - x) / centerX * 15; 
+            card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-10px)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(-10px)`;
+        });
+    });
+
+    // easteregg 
+
+    let typedCode = "";
+    const secretWord = "YASMIN";
+    window.addEventListener('keydown', (e) => {
+        if (hub.style.display === 'none') return; 
+        if (e.key.length > 1) return;
+        
+        typedCode += e.key.toUpperCase();
+        if (typedCode.length > secretWord.length) {
+            typedCode = typedCode.slice(1);
+        }
+        
+        if (typedCode === secretWord) {
+            const secretCard = document.getElementById('card-secret');
+            secretCard.style.display = 'flex';
+            typedCode = ""; 
+        }
+    });
+    // animaçao
+    function openSection(id, color) {
+        transitionOverlay.style.backgroundColor = color;
+        transitionOverlay.classList.add('active');
+        setTimeout(() => {
+            document.getElementById('sec-' + id).classList.add('visible');
+            hub.style.display = 'none';
+            if(id === 'guerra') initGuerra();
+            if(id === 'labirinto') initMaze(); 
+        }, 600);
+    }
+
+    function closeSection(id) {
+        document.getElementById('sec-' + id).classList.remove('visible');
+        hub.style.display = 'flex';
+        setTimeout(() => {
+            transitionOverlay.classList.remove('active');
+            if(id === 'guerra') {
+                clearInterval(typeInterval);
+                clearTimeout(typingTimeout);
+                document.getElementById('typewriter').innerHTML = '';
+                document.getElementById('signature').classList.remove('show');
+                document.getElementById('cursor-tw').style.display = 'inline';
+            }
+            if(id === 'labirinto') closeSecretLetter(); 
+        }, 100);
+    }
+
+    // ngc de escrever 
+    function initGuerra() {
+        const indicator = document.getElementById('typing-indicator');
+        const twElement = document.getElementById('typewriter');
+        
+        twElement.innerHTML = ''; 
+        document.getElementById('signature').classList.remove('show');
+        document.getElementById('cursor-tw').style.display = 'none';
+        indicator.style.display = 'block'; 
+        
+        typingTimeout = setTimeout(() => {
+            indicator.style.display = 'none';
+            document.getElementById('cursor-tw').style.display = 'inline';
+            startTypewriter();
+        }, 3000);
+    }
+
+    function startTypewriter() {
+        const twElement = document.getElementById('typewriter');
+        let currentMsgIndex = 0, currentCharIndex = 0;
+        if(typeInterval) clearInterval(typeInterval);
+
+        typeInterval = setInterval(() => {
+            if (currentMsgIndex < warMessages.length) {
+                if (currentCharIndex < warMessages[currentMsgIndex].length) {
+                    twElement.innerHTML += warMessages[currentMsgIndex].charAt(currentCharIndex);
+                    currentCharIndex++;
+                } else {
+                    twElement.innerHTML += '<br><br>';
+                    currentMsgIndex++;
+                    currentCharIndex = 0;
+                }
+            } else {
+                clearInterval(typeInterval); 
+                document.getElementById('cursor-tw').style.display = 'none'; 
+                document.getElementById('signature').classList.add('show'); 
+            }
+            const box = document.querySelector('.typewriter-box');
+            box.scrollTop = box.scrollHeight;
+        }, 45); 
+    }
+
+
+    // frase pequen
+
+    function spawnPhrase(e) {
+        if(e.target.classList.contains('back-btn')) return;
+        const phrase = shadowPhrases[currentPhraseIndex];
+        currentPhraseIndex++;
+        if (currentPhraseIndex >= shadowPhrases.length) currentPhraseIndex = 0;
+
+        const phraseEl = document.createElement('div');
+        phraseEl.className = 'floating-phrase';
+        phraseEl.innerText = phrase;
+        phraseEl.style.left = (e.clientX - 100) + 'px';
+        phraseEl.style.top = (e.clientY - 20) + 'px';
+        document.getElementById('sec-sombras').appendChild(phraseEl);
+        
+        setTimeout(() => { phraseEl.remove(); }, 4000);
+    }
+    // labi
+    const mazeMap = [
+        [1,1,1,1,1,1,1,1,1,1], [1,0,0,0,1,0,0,0,0,1], [1,0,1,0,1,0,1,1,0,1],
+        [1,0,1,0,0,0,0,1,0,1], [1,0,1,1,1,1,0,1,0,1], [1,0,0,0,0,1,0,0,0,1],
+        [1,1,1,1,0,1,1,1,0,1], [1,4,0,3,0,0,0,1,0,1], [1,1,1,1,1,1,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1]
+    ];
+    let playerPos = { x: 1, y: 1 }, goalPos = { x: 8, y: 8 }, gameActive = false;
+
+    function initMaze() {
+        playerPos = { x: 1, y: 1 }; gameActive = true;
+        document.getElementById('maze-subtitle').innerText = ''; 
+        mazeMap[7][1] = 4; 
+        drawMaze();
+    }
+
+    function drawMaze() {
+        const board = document.getElementById('maze-board');
+        board.innerHTML = ''; 
+        for (let y = 0; y < mazeMap.length; y++) {
+            for (let x = 0; x < mazeMap[y].length; x++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                
+                if (mazeMap[y][x] === 1 || mazeMap[y][x] === 3) cell.classList.add('wall');
+                else cell.classList.add('path');
+
+                if (x === playerPos.x && y === playerPos.y) {
+                    cell.innerHTML = '<img src="data:image/png;base64,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" style="width: 120%; height: 120%; object-fit: contain; pointer-events: none;">';
+                }
+                else if (x === goalPos.x && y === goalPos.y) {
+                    cell.innerHTML = '<span class="goal-letter">💌</span>'; 
+                }
+                else if (mazeMap[y][x] === 4) cell.innerText = ''; 
+
+                board.appendChild(cell);
+            }
+        }
+    }
+
+    function movePlayer(dx, dy) {
+        if (!gameActive) return; 
+        const newX = playerPos.x + dx, newY = playerPos.y + dy;
+        const targetCell = mazeMap[newY][newX];
+
+        if (targetCell === 0 || targetCell === 3 || targetCell === 4) {
+            playerPos.x = newX; playerPos.y = newY;
+            if (targetCell === 4) {
+                document.getElementById('maze-subtitle').innerText = '"Você atravessou a escuridão pra me achar... meu porto seguro é você."';
+                mazeMap[newY][newX] = 0; 
+            }
+            drawMaze(); checkWin();
+        }
+    }
+
+    function checkWin() {
+        if (playerPos.x === goalPos.x && playerPos.y === goalPos.y) {
+            gameActive = false; 
+            setTimeout(() => { document.getElementById('secret-letter').classList.add('show'); }, 300);
+        }
+    }
+    function closeSecretLetter() { document.getElementById('secret-letter').classList.remove('show'); }
+
+    window.addEventListener('keydown', (e) => {
+        if (!gameActive || !document.getElementById('sec-labirinto').classList.contains('visible')) return;
+        if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) e.preventDefault();
+        if (e.key === 'ArrowUp' || e.key === 'w') movePlayer(0, -1);
+        if (e.key === 'ArrowDown' || e.key === 's') movePlayer(0, 1);
+        if (e.key === 'ArrowLeft' || e.key === 'a') movePlayer(-1, 0);
+        if (e.key === 'ArrowRight' || e.key === 'd') movePlayer(1, 0);
+    });
+
+    // ==========================================
+    // carta
+    const coisasQueImportam = [
+        "Nossas skins combinando",
+        "Usar metadinha com você",
+        "Ficar em call até de madrugada",
+        "Assistir anime juntos",
+        "Nossos silêncios confortáveis",
+        "Sua voz quando está com sono",
+        "A SUA VOZ...",
+        "Criar histórias e jogar RPG",
+        "Ouvir e compartilhar músicas",
+        "a sua voz dnv",
+        "Saber que você me ama",
+        "Ler as mesmas coisas que você (EU TO LENDO OK?)",
+        "Apenas existir com você",
+        "Seu riso do nada no meio da call",
+    ];
+
+    function gerarCartasNaMesa() {
+        const mesa = document.getElementById('mesa-cartas');
+        mesa.innerHTML = ''; 
+        let highestZ = 10;
+
+        coisasQueImportam.forEach(texto => {
+            const carta = document.createElement('div');
+            carta.className = 'carta-mesa';
+            carta.innerText = texto;
+
+            const randomX = Math.floor(Math.random() * 60) + 10; 
+            const randomY = Math.floor(Math.random() * 60) + 20; 
+            const randomRotate = Math.floor(Math.random() * 40) - 20; 
+
+            carta.style.left = randomX + '%';
+            carta.style.top = randomY + '%';
+            carta.style.transform = `rotate(${randomRotate}deg)`;
+
+            mesa.appendChild(carta);
+
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+
+            carta.addEventListener('mousedown', dragStart);
+            carta.addEventListener('touchstart', dragStart, {passive: false});
+
+            function dragStart(e) {
+                isDragging = true;
+                highestZ++;
+                carta.style.zIndex = highestZ; 
+                
+                if(e.type === 'touchstart') {
+                    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                } else {
+                    startX = e.clientX; startY = e.clientY;
+                }
+                
+                const rect = carta.getBoundingClientRect();
+                initialX = rect.left; initialY = rect.top;
+
+                carta.style.left = initialX + 'px';
+                carta.style.top = initialY + 'px';
+                carta.style.transform = `rotate(${Math.random() * 10 - 5}deg) scale(1.05)`; 
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchmove', drag, {passive: false});
+                document.addEventListener('touchend', dragEnd);
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault(); 
+                let currentX, currentY;
+                if(e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX; currentY = e.touches[0].clientY;
+                } else {
+                    currentX = e.clientX; currentY = e.clientY;
+                }
+                carta.style.left = (initialX + (currentX - startX)) + 'px';
+                carta.style.top = (initialY + (currentY - startY)) + 'px';
+            }
+
+            function dragEnd(e) {
+                isDragging = false;
+                carta.style.transform = `rotate(${Math.random() * 20 - 10}deg) scale(1)`; 
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', dragEnd);
+            }
+        });
+    }
+
+    gerarCartasNaMesa();
+    createStarField();
+</script>
+</body>
+</html>
